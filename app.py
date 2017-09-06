@@ -3,10 +3,10 @@ X 1. Allow Admins to push poll to members
 X 2. Allow Admins to push poll reminder to Members who have not yet RSVP'd
 3. Add STANDBY list of favorable subs to push invite to them with limited space available
 X 4. Update Admins if member changes RSVP
-5. Send non-RSVP responses from Members to Admins
+X 5. Send non-RSVP responses from Members to Admins
 X 6. Allow members to RSVP for their guest subs
 7. Shame members that change their RSVP to "No" within x hours
-8. Allow Admins to send out messages to list for updates or fee collections
+X 8. Allow Admins to send out messages to list for updates or fee collections
 
 """
 
@@ -30,12 +30,29 @@ def main(phone, message):
             return update_rsvp(phone, message)
         elif command in ['l']:
             return send_rsvp_status(get_next_game())
+        else:
+            # 5. Send non-RSVP responses from Members to Admins
+            member = get_member(phone)
+            return notify_admin("{} said: {}".format(member['name'], message))
     except AttributeError:
         pass
 
     if is_admin(phone):
-        return admin_commands['command_' + message]()
+        result = re.seach(r'^([?!])/s?(*)', message)
+        try:
+            command = result.group(1)
+            message = result.group(2)
+            return admin_commands['command_' + command](message)
+        except AttributeError:
+            pass
     return None
+
+
+# 8. Allow Admins to send out messages to list for updates or fee collections
+def member_broadcast(message):
+    members = get_members()
+    for member in members:
+        send_message(member, message)
 
 
 # 1. Allow Master Member to push poll to members
@@ -161,13 +178,18 @@ def send_reminder():
 # 4. Update Admins if member changes RSVP
 def notify_admin(message):
     for admin in get_admins():
-        if not config.testing:
-            sms.send_sms()
-        else:
-            print('Sending to {}:'.format(admin['name']), message)
+        send_message(admin, message)
 
 
 # Utility Functions
+def send_message(member, message):
+    if not config.testing:
+        sms.send_sms(member['phone'], message)
+    else:
+        print('Sending to {}:'.format(member['name']), message)
+    pass
+
+
 def is_admin(phone):
     results = get_member(phone)
     if not results:
@@ -232,7 +254,8 @@ member_commands = {
 }
 
 admin_commands = {
-    'command_?': send_reminder
+    'command_?': send_reminder,
+    'command_!': member_broadcast
 }
 
 
