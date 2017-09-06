@@ -249,7 +249,7 @@ def get_next_game(game_date=None):  # returns Arrow object for next game
             days_till_game += 7
         next_game = today.shift(days=days_till_game)
     else:
-        next_game = arrow.get(game_date, 'YYYY-MM-DD')
+        next_game = arrow.get(game_date, 'YYYY-MM-DD', tzinfo='US/Pacific')
 
     # adjust to next game time
     next_game = next_game.replace(hour=config.event_hour, minute=config.event_minute)
