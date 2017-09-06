@@ -81,7 +81,6 @@ def send_invite(members=None):
 
 # 1.1 Handle user's RSVP response
 def update_rsvp(phone, message):
-    db = TinyDB(config.db_file)
     # get member by phone and ...
     members = get_members()
     Member = Query()
@@ -105,8 +104,13 @@ def update_rsvp(phone, message):
     rsvp_message = reply.capitalize()
     if sub:
         rsvp_message += ' with {} sub(s)'.format(sub)
+    set_rsvp(game, member, reply, sub)
+    return 'Thank you for RSVPing {} to the next game!'.format(rsvp_message)
 
+
+def set_rsvp(game, member, reply, sub):
     # check for current RSVP
+    db = TinyDB(config.db_file)
     rsvps = db.table('RSVP')
     RSVP = Query()
     results = rsvps.search((RSVP.game == game.timestamp) & (RSVP.name == member['name']))
@@ -125,8 +129,6 @@ def update_rsvp(phone, message):
     rsvp = {'name': member['name'], 'game': game.timestamp, 'reply': reply, 'sub': sub,
             'timestamp': arrow.now().timestamp}
     rsvps.insert(rsvp)
-
-    return 'Thank you for RSVPing {} to the next game!'.format(rsvp_message)
 
 
 # 1.2 Let members see RSVP list
@@ -236,8 +238,11 @@ def get_members():
     return members
 
 
-def get_next_game():  # returns Arrow object for next game
-    today = arrow.now()
+def get_next_game(game_date=None):  # returns Arrow object for next game
+    if game_date is None:
+        today = arrow.now()
+    else:
+        today = arrow.get(game_date, 'YYYY-MM-DD')
     # find days till next game day. If today is game day, return zero.
     days_till_game = config.event_weekday - today.isoweekday()
     # adjust date to next game date
@@ -261,8 +266,9 @@ admin_commands = {
 
 if __name__ == '__main__':
     print('Running script...')
+    # print(get_next_game('2017-07-06'))
     # print(main('+19168357536', '?'))
-    # print(main('+19168357536', 'y'))
+    # print(main('+19168357536', 'n'))
     # print(main('+13104253545', 'no 2'))
     # print(main('+13104253545', 'l'))
     # print(send_reminder())
