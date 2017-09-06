@@ -71,8 +71,9 @@ def send_invite(members=None):
 
     # send message to each member
     for member in members:
-        # sms.send_sms(member['phone'], '{}, '.format(member['name']) + message)
-        if config.testing:
+        if not config.testing:
+            send_message(member, '{}, {}'.format(member['name'], message))
+        else:
             print('{}, '.format(member['name']) + message)
 
     # acknowledge invite was sent
