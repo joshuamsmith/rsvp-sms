@@ -1,22 +1,20 @@
 from flask import Flask, request, redirect
+from tinydb import TinyDB, Query
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
 
-import program
+import app
+import config
 
-app = Flask(__name__)
+wsgi = Flask(__name__)
 
 
-@app.route("/dweb/", methods=['GET', 'POST'])
+@wsgi.route("/dweb/", methods=['GET', 'POST'])
 def hello_monkey():
-    """Respond and greet the caller by name."""
-
-    from_number = request.values.get('From', None)
-    if from_number in program.get_member_list():
+    phone_from = request.values.get('From', None)
+    if app.is_member(phone_from):
         body = request.values.get('Body', None)
-        DID = request.values.get('From')
         message = Message()
-        message.body(program.poll_action(DID, body))
-#        message = program.MEMBER_LIST[from_number] + ", thanks for the message!"
+        message.body(app.main(phone_from, body))
     else:
         return None
 
@@ -26,5 +24,16 @@ def hello_monkey():
     return str(resp)
 
 
+def init_db():
+    db = TinyDB(config.db_file)
+    if len(db.tables()) > 1:
+        return True
+    member_table = db.table('Member')
+    member_table.insert_multiple(config.member_list)
+    admin_table = db.table('Admin')
+    admin_table.insert_multiple(config.admin_members)
+
 if __name__ == "__main__":
-    app.run(debug=True, port=6543)
+    # Load and check DB
+    init_db()
+    wsgi.run(debug=True, port=6543)
