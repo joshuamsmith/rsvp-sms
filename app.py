@@ -72,7 +72,7 @@ def send_invite(members=None):
     # send message to each member
     for member in members:
         if not config.testing:
-            send_message(member, '{}, {}'.format(member['name'], message))
+            send_message(member, '{}, '.format(member['name'], message))
         else:
             print('{}, '.format(member['name']) + message)
 
@@ -242,14 +242,15 @@ def get_members():
 def get_next_game(game_date=None):  # returns Arrow object for next game
     if game_date is None:
         today = arrow.now()
+        # find days till next game day. If today is game day, return zero.
+        days_till_game = config.event_weekday - today.isoweekday()
+        # adjust date to next game date
+        if days_till_game < 0:
+            days_till_game += 7
+        next_game = today.shift(days=days_till_game)
     else:
-        today = arrow.get(game_date, 'YYYY-MM-DD')
-    # find days till next game day. If today is game day, return zero.
-    days_till_game = config.event_weekday - today.isoweekday()
-    # adjust date to next game date
-    if days_till_game < 0:
-        days_till_game += 7
-    next_game = today.shift(days=days_till_game)
+        next_game = arrow.get(game_date, 'YYYY-MM-DD')
+
     # adjust to next game time
     next_game = next_game.replace(hour=config.event_hour, minute=config.event_minute)
     return next_game.floor('minute')
