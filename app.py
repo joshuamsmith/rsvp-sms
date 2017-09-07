@@ -38,7 +38,7 @@ def main(phone, message):
         pass
 
     if is_admin(phone):
-        result = re.search(r'^([?!])\s?(.*)', message)
+        result = re.search('^([?!])\s?(.*)', message)
         try:
             command = result.group(1)
             message = result.group(2)
@@ -156,10 +156,10 @@ def send_rsvp_status(game):
     spots = {'yes': 0, 'no': 0, 'sub': 0}
     for key, rsvp in players.items():
         spots[rsvp['reply']] += 1
-        response += '{} said {}'.format(rsvp['name'], rsvp['reply'])
+        response += '{}: {}'.format(rsvp['name'], rsvp['reply'].capitalize())
         if rsvp['sub'] and int(rsvp['sub']) > 0:
             spots['sub'] = spots['sub'] + int(rsvp['sub'])
-            response += ' and is bringing {} sub(s)'.format(rsvp['sub'])
+            response += ' and is bringing {} sub{}'.format(rsvp['sub'], 's' if int(rsvp['sub']) > 1 else '')
         response += "\n"
     response = "Yes: {} No: {} Subs: {} (Total Players: {})\n --- --- --- \n{}".format(spots['yes'], spots['no'],
                                                                                        spots['sub'],
@@ -271,9 +271,3 @@ admin_commands = {
 
 if __name__ == '__main__':
     print('Running script...')
-    # print(get_next_game('2017-07-06'))
-    print(main('+19168357536', '! This is a test of the broadcast system'))
-    # print(main('+19168357536', 'n'))
-    # print(main('+13104253545', 'no 2'))
-    # print(main('+13104253545', 'l'))
-    # print(send_reminder())
