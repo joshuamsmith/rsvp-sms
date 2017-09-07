@@ -38,7 +38,7 @@ def main(phone, message):
         pass
 
     if is_admin(phone):
-        result = re.seach(r'^([?!])/s?(*)', message)
+        result = re.search(r'^([?!])\s?(.*)', message)
         try:
             command = result.group(1)
             message = result.group(2)
@@ -53,6 +53,7 @@ def member_broadcast(message):
     members = get_members()
     for member in members:
         send_message(member, message)
+    return 'Member broadcast sent'
 
 
 # 1. Allow Master Member to push poll to members
@@ -269,7 +270,7 @@ admin_commands = {
 if __name__ == '__main__':
     print('Running script...')
     # print(get_next_game('2017-07-06'))
-    # print(main('+19168357536', '?'))
+    print(main('+19168357536', '! This is a test of the broadcast system'))
     # print(main('+19168357536', 'n'))
     # print(main('+13104253545', 'no 2'))
     # print(main('+13104253545', 'l'))
