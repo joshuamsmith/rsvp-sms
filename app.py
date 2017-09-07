@@ -169,7 +169,7 @@ def send_rsvp_status(game):
 
 
 # 2. Allow Admins to push poll reminder to Members who have not yet RSVP'd
-def send_reminder():
+def send_reminder(*args):
     # get list of Members that haven't RSVP'd
     all_members = get_members()
     game = get_next_game()
