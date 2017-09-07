@@ -50,10 +50,12 @@ def main(phone, message):
 
 # 8. Allow Admins to send out messages to list for updates or fee collections
 def member_broadcast(message):
-    members = get_members()
-    for member in members:
-        send_message(member, message)
-    return 'Member broadcast sent'
+    if message.strip():
+        members = get_members()
+        for member in members:
+            send_message(member, message)
+        return 'Member broadcast sent: "{}"'.format(message)
+    return 'Message not sent'
 
 
 # 1. Allow Master Member to push poll to members
