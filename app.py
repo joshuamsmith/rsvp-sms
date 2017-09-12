@@ -75,7 +75,7 @@ def send_invite(members=None):
     # send message to each member
     for member in members:
         if not config.testing:
-            send_message(member, '{}, '.format(member['name'], message))
+            send_message(member, '{}, {}'.format(member['name'], message))
         else:
             print('{}, '.format(member['name']) + message)
 
